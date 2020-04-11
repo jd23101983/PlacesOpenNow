@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">PlacesOpenNow</string>
+    <string name="places_open_now">Places Open Now</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="dropped_pin">Dropped Pin</string>
+    <string name="add_to_favorites">Add To Favorites</string>
+    <string name="location_details">Location Details</string>
+    <string name="return_to_map">Return To Map</string>
+</resources>
