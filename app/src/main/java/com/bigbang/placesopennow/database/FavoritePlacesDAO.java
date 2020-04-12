@@ -7,6 +7,8 @@ import androidx.room.Query;
 
 import java.util.List;
 
+import io.reactivex.Observable;
+
 @Dao
 public interface FavoritePlacesDAO {
 
@@ -17,5 +19,5 @@ public interface FavoritePlacesDAO {
     void deleteFavoritePlace(FavoritePlacesEntity favoritePlace);
 
     @Query("SELECT * FROM FavoritePlaces")
-    List<FavoritePlacesEntity> selectAllFavoritePlaces();
+    Observable<List<FavoritePlacesEntity>> selectAllFavoritePlaces();
 }

@@ -6,26 +6,19 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import androidx.room.Room;
-
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
-
 import com.bigbang.placesopennow.R;
 import com.bigbang.placesopennow.adapter.FavoritePlacesAdapter;
 import com.bigbang.placesopennow.database.FavoritePlacesEntity;
 import com.bigbang.placesopennow.util.DebugLogger;
 import com.bigbang.placesopennow.viewmodel.GooglePlacesViewModel;
-
 import java.util.List;
-
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
@@ -35,14 +28,12 @@ public class FavoritePlacesFragment extends Fragment implements FavoritePlacesAd
 
     private GooglePlacesViewModel googlePlacesViewModel;
     private FavoritePlacesAdapter favoritePlacesAdapter;
-    private CompositeDisposable compositeDisposable = new CompositeDisposable();
+    private CompositeDisposable compositeDisposable;
 
     @BindView(R.id.favorite_places_recyclerview)
     RecyclerView favoritePlacesRecyclerView;
 
-    public FavoritePlacesFragment() {
-        // Required empty public constructor
-    }
+    public FavoritePlacesFragment() { }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -56,17 +47,18 @@ public class FavoritePlacesFragment extends Fragment implements FavoritePlacesAd
         super.onViewCreated(view, savedInstanceState);
         ButterKnife.bind(this, view);
 
-        googlePlacesViewModel = ViewModelProviders.of(this).get(GooglePlacesViewModel.class);
+        Log.d("TAG_XXX", "INSIDE ONVIEWCREATED()");
 
-/*
+        googlePlacesViewModel = ViewModelProviders.of(this).get(GooglePlacesViewModel.class);
+        compositeDisposable = new CompositeDisposable();
         compositeDisposable.add(googlePlacesViewModel.getFavoritePlaces().subscribe(newFavoritePlaceList -> {
             Log.d("TAG_X_Current", "New results in "+newFavoritePlaceList.size());
             displayFavoritePlaces(newFavoritePlaceList);
         }, throwable -> {
             DebugLogger.logError(throwable);
         }));
-*/
-        displayFavoritePlaces(googlePlacesViewModel.getFavoritePlaces());
+
+        //displayFavoritePlaces(googlePlacesViewModel.getFavoritePlaces());
     }
 
     public void displayFavoritePlaces (List<FavoritePlacesEntity> favoritePlacesEntityList) {
@@ -81,12 +73,23 @@ public class FavoritePlacesFragment extends Fragment implements FavoritePlacesAd
     }
 
     @Override
+    public void onDetach() {
+        super.onDetach();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        compositeDisposable.dispose();
+    }
+
+    @Override
     public void deleteFavoritePlace(FavoritePlacesEntity favoritePlacesEntity) {
 
         Log.d("TAG_XXX", "inside Fragment::deleteFavoritePlace: " + favoritePlacesEntity.getPlaceName());
 
         googlePlacesViewModel.deleteFavoritePlace(favoritePlacesEntity);
-        displayFavoritePlaces(googlePlacesViewModel.getFavoritePlaces());
+        //displayFavoritePlaces(googlePlacesViewModel.getFavoritePlaces());
     }
 
     @OnClick(R.id.favorite_places_return_button)

@@ -56,7 +56,15 @@ public class GooglePlacesViewModel extends AndroidViewModel {
         favoritePlacesDB.getFavoritePlacesDAO().deleteFavoritePlace(favoritePlacesEntity);
     }
 
-    public List<FavoritePlacesEntity> getFavoritePlaces() {
-        return favoritePlacesDB.getFavoritePlacesDAO().selectAllFavoritePlaces();
+//    public List<FavoritePlacesEntity> getFavoritePlaces() {
+//        return favoritePlacesDB.getFavoritePlacesDAO().selectAllFavoritePlaces();
+//    }
+
+    public Observable<List<FavoritePlacesEntity>> getFavoritePlaces() {
+        return favoritePlacesDB
+                .getFavoritePlacesDAO().selectAllFavoritePlaces()
+                .observeOn(AndroidSchedulers.mainThread()).
+                subscribeOn(Schedulers.io());
     }
+
 }

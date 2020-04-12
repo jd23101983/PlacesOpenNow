@@ -61,8 +61,6 @@ public class DetailsFragment extends Fragment {
 
         Glide.with(this).load(marker.getSnippet()).into(locationIcon);
         locationName.setText(marker.getTitle());
-
-        Log.d("TAG_XX", "DetailsFragment successfully created . . ." + marker.getTitle());
     }
 
     @Override
