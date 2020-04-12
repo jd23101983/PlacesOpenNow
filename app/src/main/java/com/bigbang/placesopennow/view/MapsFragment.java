@@ -14,6 +14,8 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.ViewModelProviders;
 import android.util.Log;
+import android.view.View;
+
 import com.bigbang.placesopennow.R;
 import com.bigbang.placesopennow.model.LocationResultSet;
 import com.bigbang.placesopennow.model.Result;
@@ -28,6 +30,9 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PointOfInterest;
 import java.util.List;
+
+import butterknife.ButterKnife;
+import butterknife.OnClick;
 import io.reactivex.disposables.CompositeDisposable;
 import static com.bigbang.placesopennow.util.Constants.REQUEST_CODE;
 import static com.bigbang.placesopennow.util.DebugLogger.logDebug;
@@ -42,14 +47,18 @@ public class MapsFragment extends FragmentActivity implements OnMapReadyCallback
     private Location currentLocation;
 
     private DetailsFragment detailsFragment;
+    private FavoritePlacesFragment favoritePlacesFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
-
+        ButterKnife.bind(this);
+        
         googlePlacesViewModel = ViewModelProviders.of(this).get(GooglePlacesViewModel.class);
         setUpLocation();
+
+        favoritePlacesFragment = new FavoritePlacesFragment();
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
@@ -122,8 +131,10 @@ public class MapsFragment extends FragmentActivity implements OnMapReadyCallback
     }
 
     public void setupCurrentMap(LatLng currentLatLng) {
-        mMap.addMarker(new MarkerOptions().position(currentLatLng).title("Marker at Current Location"));
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, 15f));
+        if (mMap != null) {
+            mMap.addMarker(new MarkerOptions().position(currentLatLng).title("Marker at Current Location"));
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, 15f));
+        }
     }
 
     @SuppressLint("MissingPermission")
@@ -206,10 +217,28 @@ public class MapsFragment extends FragmentActivity implements OnMapReadyCallback
                 .commit();
     }
 
+    @OnClick(R.id.view_favorites_button)
+    public void viewFavorites(View view) {
+
+        Log.d("TAG_XX", "viewFavorites Button clicked . . . ");
+
+        getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.multi_fragment_frame, favoritePlacesFragment)
+                .commit();
+    }
+
     public void returnToMap() {
         getSupportFragmentManager()
                 .beginTransaction()
                 .remove(detailsFragment)
+                .commit();
+    }
+
+    public void returnToMapFromFavorites() {
+        getSupportFragmentManager()
+                .beginTransaction()
+                .remove(favoritePlacesFragment)
                 .commit();
     }
 
@@ -218,6 +247,12 @@ public class MapsFragment extends FragmentActivity implements OnMapReadyCallback
         super.onStop();
         if (locationManager != null)
             locationManager.removeUpdates(this); //This will also stop memory leaks....
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        compositeDisposable.clear();
     }
 
     @Override

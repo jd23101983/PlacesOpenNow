@@ -41,7 +41,6 @@ public class DetailsFragment extends Fragment {
     TextView locationName;
 
     public DetailsFragment(Marker marker) {
-        // Required empty public constructor
         this.marker = marker;
     }
 
@@ -74,14 +73,7 @@ public class DetailsFragment extends Fragment {
     @OnClick(R.id.add_to_favorites_button)
     public void addToFavorites(View view) {
         googlePlacesViewModel.addPlaceToFavorites(marker.getSnippet(), marker.getTitle());
-
-        // debug purposes
-        List<FavoritePlacesEntity> fpe = new ArrayList<>();
-        fpe = googlePlacesViewModel.getFavoritePlaces();
-        Log.d("TAG_XX", "*** Favorite Places ***");
-        for (int i = 0; i < fpe.size() ; i++) {
-            Log.d("TAG_XX", "Favorite Place: " + fpe.get(i).getPlaceIcon() + " " + fpe.get(i).getPlaceName());
-        }
+        ((MapsFragment)getContext()).returnToMap();
     }
 
     @OnClick(R.id.return_button)
