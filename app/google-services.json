@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "480703823702",
+    "firebase_url": "https://placesopennow.firebaseio.com",
+    "project_id": "placesopennow",
+    "storage_bucket": "placesopennow.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:480703823702:android:d3097429d04e22bebd20f7",
+        "android_client_info": {
+          "package_name": "com.bigbang.placesopennow"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "480703823702-d3tpmc06p69v13ehfovkb06g7b0isfsl.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBbfnw08ELXTQ5b95NHLUHp9l_wgE1Fe9s"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "480703823702-d3tpmc06p69v13ehfovkb06g7b0isfsl.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
