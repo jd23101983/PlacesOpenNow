@@ -6,6 +6,8 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModel;
+import androidx.lifecycle.ViewModelProviders;
 
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -15,8 +17,13 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bigbang.placesopennow.R;
+import com.bigbang.placesopennow.database.FavoritePlacesEntity;
+import com.bigbang.placesopennow.viewmodel.GooglePlacesViewModel;
 import com.bumptech.glide.Glide;
 import com.google.android.gms.maps.model.Marker;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -24,10 +31,8 @@ import butterknife.OnClick;
 
 public class DetailsFragment extends Fragment {
 
+    private GooglePlacesViewModel googlePlacesViewModel;
     private Marker marker;
-
-    @BindView(R.id.details_textview)
-    TextView fragmentTitle;
 
     @BindView(R.id.location_icon)
     ImageView locationIcon;
@@ -43,6 +48,9 @@ public class DetailsFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+
+        googlePlacesViewModel =  ViewModelProviders.of(this).get(GooglePlacesViewModel.class);
+
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_details, container, false);
     }
@@ -61,6 +69,19 @@ public class DetailsFragment extends Fragment {
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
+    }
+
+    @OnClick(R.id.add_to_favorites_button)
+    public void addToFavorites(View view) {
+        googlePlacesViewModel.addPlaceToFavorites(marker.getSnippet(), marker.getTitle());
+
+        // debug purposes
+        List<FavoritePlacesEntity> fpe = new ArrayList<>();
+        fpe = googlePlacesViewModel.getFavoritePlaces();
+        Log.d("TAG_XX", "*** Favorite Places ***");
+        for (int i = 0; i < fpe.size() ; i++) {
+            Log.d("TAG_XX", "Favorite Place: " + fpe.get(i).getPlaceIcon() + " " + fpe.get(i).getPlaceName());
+        }
     }
 
     @OnClick(R.id.return_button)

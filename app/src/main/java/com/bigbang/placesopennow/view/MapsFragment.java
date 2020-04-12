@@ -8,20 +8,12 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
-
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.ViewModelProviders;
-
 import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-
 import com.bigbang.placesopennow.R;
 import com.bigbang.placesopennow.model.LocationResultSet;
 import com.bigbang.placesopennow.model.Result;
@@ -31,18 +23,12 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PointOfInterest;
-
 import java.util.List;
-import java.util.Locale;
-
 import io.reactivex.disposables.CompositeDisposable;
-import com.bigbang.placesopennow.util.Constants.*;
-
 import static com.bigbang.placesopennow.util.Constants.REQUEST_CODE;
 import static com.bigbang.placesopennow.util.DebugLogger.logDebug;
 
@@ -63,7 +49,6 @@ public class MapsFragment extends FragmentActivity implements OnMapReadyCallback
         setContentView(R.layout.activity_maps);
 
         googlePlacesViewModel = ViewModelProviders.of(this).get(GooglePlacesViewModel.class);
-
         setUpLocation();
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
@@ -107,18 +92,6 @@ public class MapsFragment extends FragmentActivity implements OnMapReadyCallback
                         Log.d("TAX_X", "show requirements needed . . . "); //showRequirements();
                 }
             }
-            /*
-            if (permissions[1].equals(Manifest.permission.READ_SMS)) {
-                if (grantResults[1] == PackageManager.PERMISSION_GRANTED)
-                    setUpLocation();
-                else {
-                    if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.READ_SMS))
-                        requestPermissions();
-                    else
-                        showRequirements();
-                }
-            }
-            */
         }
     }
 
@@ -135,10 +108,22 @@ public class MapsFragment extends FragmentActivity implements OnMapReadyCallback
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
 
-        //setUpLocation();
-
-        setMapLongClick(mMap);
         setPoiClick(mMap);
+    }
+
+    @SuppressLint("MissingPermission")
+    private void setUpLocation() {
+        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        locationManager.requestLocationUpdates(
+                LocationManager.GPS_PROVIDER,
+                5000,
+                10,
+                this);
+    }
+
+    public void setupCurrentMap(LatLng currentLatLng) {
+        mMap.addMarker(new MarkerOptions().position(currentLatLng).title("Marker at Current Location"));
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, 15f));
     }
 
     @SuppressLint("MissingPermission")
@@ -153,7 +138,6 @@ public class MapsFragment extends FragmentActivity implements OnMapReadyCallback
             coordinates = currentLocation.getLatitude() + "," + currentLocation.getLongitude();
         }
 
-        // RxJava
         compositeDisposable.add(googlePlacesViewModel.getGooglePlacesData(coordinates).subscribe(googlePlacesResults -> {
             displayInformationRx(googlePlacesResults);
         }, throwable -> {
@@ -161,13 +145,12 @@ public class MapsFragment extends FragmentActivity implements OnMapReadyCallback
         }));
     }
 
-    // RxJava
     private void displayInformationRx(LocationResultSet googlePlacesResults) {
 
         List<Result> results = googlePlacesResults.getResults();
 
         for (int i = 0; i < results.size(); i++) {
-            //DebugLogger.logDebug("RxJava : " + googleBookResults.get(i).getVolumeInfo().getImageLinks().getThumbnail());
+
             if (results.get(i) != null) {
                 logDebug("RxJava : " + results.get(i).getName());
                 logDebug("RxJava : " + results.get(i).getGeometry().getLocation().getLat());
@@ -197,62 +180,6 @@ public class MapsFragment extends FragmentActivity implements OnMapReadyCallback
         });
     }
 
-    public void loadDetailsFragment() {
-        getSupportFragmentManager()
-                .beginTransaction()
-                .replace(R.id.multi_fragment_frame, detailsFragment)
-                .commit();
-    }
-
-    public void returnToMap() {
-        getSupportFragmentManager()
-                .beginTransaction()
-                .remove(detailsFragment)
-                .commit();
-    }
-
-    public void setupCurrentMap(LatLng currentLatLng) {
-
-        //if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
-        //        ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-        //    return;
-        //}
-        //currentLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-
-        mMap.addMarker(new MarkerOptions().position(currentLatLng).title("Marker at Current Location"));
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, 15f));
-
-    }
-
-    @SuppressLint("MissingPermission")
-    private void setUpLocation() {
-        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-        locationManager.requestLocationUpdates(
-                LocationManager.GPS_PROVIDER,
-                5000,
-                10,
-                this);
-    }
-
-    private void setMapLongClick(final GoogleMap map) {
-        map.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
-            @Override
-            public void onMapLongClick(LatLng latLng) {
-                String snippet = String.format(Locale.getDefault(),
-                        "Lat: %1$.5f, Long: %2$.5f",
-                        latLng.latitude,
-                        latLng.longitude);
-
-                map.addMarker(new MarkerOptions()
-                        .position(latLng)
-                        .title(getString(R.string.dropped_pin))
-                        .snippet(snippet)
-                        .icon(BitmapDescriptorFactory.defaultMarker
-                                (BitmapDescriptorFactory.HUE_BLUE)));
-            }
-        });
-    }
-
     private void setPoiClick(final GoogleMap map) {
 
         Log.d("TAG_XX", "inside POI Click A");
@@ -272,6 +199,20 @@ public class MapsFragment extends FragmentActivity implements OnMapReadyCallback
         });
     }
 
+    public void loadDetailsFragment() {
+        getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.multi_fragment_frame, detailsFragment)
+                .commit();
+    }
+
+    public void returnToMap() {
+        getSupportFragmentManager()
+                .beginTransaction()
+                .remove(detailsFragment)
+                .commit();
+    }
+
     @Override
     protected void onStop() {
         super.onStop();
@@ -289,17 +230,13 @@ public class MapsFragment extends FragmentActivity implements OnMapReadyCallback
 
     @Override
     public void onStatusChanged(String provider, int status, Bundle extras) {
-
     }
 
     @Override
     public void onProviderEnabled(String provider) {
-
     }
 
     @Override
     public void onProviderDisabled(String provider) {
-
     }
-
 }
