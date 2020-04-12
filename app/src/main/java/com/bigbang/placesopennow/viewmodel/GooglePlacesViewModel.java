@@ -35,7 +35,6 @@ public class GooglePlacesViewModel extends AndroidViewModel {
                 )
                 .allowMainThreadQueries()
                 .build();
-
     }
 
     public Observable<LocationResultSet> getGooglePlacesData(String lat_long) {

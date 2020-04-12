@@ -3,18 +3,24 @@ package com.bigbang.placesopennow.view;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.net.Uri;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.ViewModelProviders;
+
+import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
+import android.widget.TextView;
 
 import com.bigbang.placesopennow.R;
 import com.bigbang.placesopennow.model.LocationResultSet;
@@ -48,6 +54,10 @@ public class MapsFragment extends FragmentActivity implements OnMapReadyCallback
 
     private DetailsFragment detailsFragment;
     private FavoritePlacesFragment favoritePlacesFragment;
+    private SupportMapFragment mapFragment;
+
+    private TextView permissionRequiredTextView;
+    private Button openSettingsButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,12 +66,25 @@ public class MapsFragment extends FragmentActivity implements OnMapReadyCallback
         ButterKnife.bind(this);
         
         googlePlacesViewModel = ViewModelProviders.of(this).get(GooglePlacesViewModel.class);
-        setUpLocation();
 
         favoritePlacesFragment = new FavoritePlacesFragment();
 
+        permissionRequiredTextView = findViewById(R.id.textView);
+        openSettingsButton = findViewById(R.id.open_setting_button);
+        openSettingsButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent openSettings = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                Uri uri = Uri.fromParts("package", getPackageName(), "Permissions");
+                openSettings.setData(uri);
+                startActivity(openSettings);
+            }
+        });
+
+        //setUpLocation();
+
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
-        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
+        mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
     }
@@ -92,16 +115,28 @@ public class MapsFragment extends FragmentActivity implements OnMapReadyCallback
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == REQUEST_CODE) {
             if (permissions[0].equals(Manifest.permission.ACCESS_FINE_LOCATION)) {
-                if (grantResults[0] == PackageManager.PERMISSION_GRANTED)
+                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     setUpLocation();
+                }
                 else { //Permission was denied
-                    if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION))
+                    if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION)) {
                         requestPermissions();
+                    }
                     else
-                        Log.d("TAX_X", "show requirements needed . . . "); //showRequirements();
+                        showRequirements();
                 }
             }
         }
+    }
+
+    private void showRequirements() {
+        permissionRequiredTextView.setVisibility(View.VISIBLE);
+        openSettingsButton.setVisibility(View.VISIBLE);
+    }
+
+    private void hideRequirements() {
+        permissionRequiredTextView.setVisibility(View.INVISIBLE);
+        openSettingsButton.setVisibility(View.INVISIBLE);
     }
 
     /**
@@ -116,7 +151,6 @@ public class MapsFragment extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
-
         setPoiClick(mMap);
     }
 
@@ -259,6 +293,7 @@ public class MapsFragment extends FragmentActivity implements OnMapReadyCallback
     public void onLocationChanged(Location location) {
         Log.d("TAG_X", "LOCATION : " + location.getLatitude() + "," + location.getLongitude());
         currentLocation = location;
+        hideRequirements();
         setupCurrentMap(new LatLng(location.getLatitude(), location.getLongitude()));
         getCurrentOpenLocations();
     }

@@ -10,4 +10,6 @@
     <string name="return_to_map">Return To Map</string>
     <string name="view_favorites">View Favorites</string>
     <string name="favorite_places">Favorite Places</string>
+    <string name="permission_requirement_text">You will need location permission to use this application. Please enable permissions from application settings.</string>
+    <string name="open_settings_text">Open Settings</string>
 </resources>
