@@ -10,6 +10,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -27,6 +28,7 @@ public class MainActivity extends AppCompatActivity {
     private GooglePlacesViewModel googlePlacesViewModel;
     private LoginFragment loginFragment = new LoginFragment();
     private String username="JP";
+    private Button viewMapButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,11 +37,13 @@ public class MainActivity extends AppCompatActivity {
         ButterKnife.bind(this);
 
         googlePlacesViewModel = ViewModelProviders.of(this).get(GooglePlacesViewModel.class);
+        viewMapButton = findViewById(R.id.view_map_button);
 
         if(googlePlacesViewModel.getUserLoggedIn()){
             // User Logged in
             setEmailAsUsername();
         } else {
+            viewMapButton.setVisibility(View.INVISIBLE);
             //User is not logged in - Display Login/Sign Up Fragment
             getSupportFragmentManager()
                     .beginTransaction()
@@ -58,6 +62,7 @@ public class MainActivity extends AppCompatActivity {
         getSupportFragmentManager().beginTransaction()
                 .remove(loginFragment)
                 .commit();
+        viewMapButton.setVisibility(View.VISIBLE);
     }
 
     @OnClick(R.id.view_map_button)
